@@ -1,4 +1,6 @@
 from BinaryTree import BinaryTree
+import random
+
 
 myTree = BinaryTree(None)
 root = None
@@ -22,11 +24,14 @@ AVL Tree would be
         /  \     \
        10  25    50"""
 
-myTree.init_values(values=[1, 2, 3])
-print("Preorder traversal of the",
-      "constructed AVL tree is")
-"30 20 10 25 40 50"
-myTree.setHeights(myTree)
-myTree.preOrder(myTree)
+
+values = set()
+for _ in range(5):
+      values.add(random.randint(0, 9))
+
+
+myTree.init_values(values)
 myTree.balance_tree()
-myTree.preOrder(myTree)
+# myTree.preOrder(myTree)
+myTree.display()
+print("balance:", myTree.balance)
