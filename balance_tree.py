@@ -27,11 +27,8 @@ AVL Tree would be
 
 values = set()
 for _ in range(5):
-      values.add(random.randint(0, 9))
+      values.add(random.randint(0, 20))
 
 
 myTree.init_values(values)
 myTree.balance_tree()
-# myTree.preOrder(myTree)
-myTree.display()
-print("balance:", myTree.balance)

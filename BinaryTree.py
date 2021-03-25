@@ -95,7 +95,6 @@ class BinaryTree:
             return 0
         return node.size
 
-
     def setDepths(self, node, depth=0, max_depth=0):
         """
 
@@ -125,9 +124,11 @@ class BinaryTree:
         if max_depth < depth:
             max_depth = depth
 
-        max_depth = self.setDepthsThenHeights(node.left, depth + 1, max_depth)
+        max_depth = self.setDepthsThenHeights(node.left, depth + 1,
+                                              max_depth)
 
-        max_depth = self.setDepthsThenHeights(node.right, depth + 1, max_depth)
+        max_depth = self.setDepthsThenHeights(node.right, depth + 1,
+                                              max_depth)
         node.height = 1 + max_depth - depth
         return max_depth
 
@@ -273,12 +274,20 @@ class BinaryTree:
         return lines, n + m + u, max(p, q) + 2, n + u // 2
 
     def get_min_node(self):
+        """
+
+        :return: minimum value node
+        """
         min = self
         while min.left is not None:
             min = min.left
         return min
 
     def get_max_node(self):
+        """
+
+        :return: maximum value node
+        """
         max = self
         while max.right is not None:
             max = max.right
@@ -361,19 +370,17 @@ class BinaryTree:
 
         return minimum
 
-    def remove_subtree_maximum(self, key):
+    def remove_subtree_maximum(self, subtree):
         """
         supprime le maximum d’un sous-ABR et retourne sa valeur
         :return:maximum
         """
-        node = self.get(key)
-        if node is None:
+        if subtree is None:
             return
-        next = node.right
-        while next.right is not None:
-            next = next.right
-        maximum = next.key
-        self.remove(next)
+        max_node = subtree.get_max_node()
+        maximum = max_node.key
+        self.remove(max_node)
+
         return maximum
 
     def remove_maximum(self):
@@ -392,19 +399,18 @@ class BinaryTree:
     def rotate_root_right(self):
         """
         NO MANUAL VALUE DELETE OR INSERT
-        Effectue une rotation de la
-        racine droite sur l’arbre courant ou ne modifie pas l’arbre
-        si celle-ci est impossible La rotation de la racine droite
-        déplace un ou plusieurs noeuds du sous-arbre gauche vers le
+        Effectue une rotation de la racine droite sur l’arbre courant ou
+         ne modifie pas l’arbre si celle-ci est impossible
+        Déplace un ou plusieurs noeuds du sous-arbre gauche vers le
         sous-arbre droit en suivant
         les étapes suivantes :
         — placer b à la racine en conservant
         son sous-arbre gauche d,
         — placer a et son sous-arbre droit c
         comme fils droit de la nouvelle racine b,
-        — placer e,
-        l’ancien sous-arbre droit de b, comme fils gauche de a. Après
-        cette rotation, b est retiré du sous-arbre gauche et a ainsi
+        — placer e, l’ancien sous-arbre droit de b, comme fils gauche de a.
+        Après cette rotation, b est retiré du sous-arbre gauche et a
+        ainsi
         que le sous-arbre e sont rajoutés au sous-arbre droit. Cette
         manipulation est rapide mais le nombre de noeuds transférés
         dépend du nombre de noeuds dans le sous-arbre e.
@@ -417,7 +423,7 @@ class BinaryTree:
         previous_root.left = new_root.right
         self = new_root
         self.right = previous_root
-        self.setHeights(self)
+        self.setSizes(self)
 
     def rotate_root_left(self):
         """
@@ -427,6 +433,14 @@ class BinaryTree:
         :param self:
         :return: None
         """
+        if self.right is None:
+            return
+        previous_root = copy.copy(self)
+        new_root = self.right
+        previous_root.right = new_root.left
+        self = new_root
+        self.left = previous_root
+        self.setSizes(self)
 
     def rotate_simple_right(self):
         """
@@ -453,7 +467,9 @@ class BinaryTree:
         if self.left is None:
             return
         previous_root = copy.copy(self)
-        self.key = self.remove_subtree_maximum(self.left)
+        self.key = self.remove_subtree_maximum(self.left)  # not
+        # remove_maximum
+        # todo find way to find parent with subtree as self
         previous_root.left = None
         self.right = previous_root
         self.setSizes(self)
@@ -503,19 +519,38 @@ class BinaryTree:
         manière à ce que la procédure soit la plus rapide possible
         :param self: :return: None
         """
+
+        if self.left is None:
+            left_size = 0
+        else:
+            left_size = self.left.balance_tree()
+        if self.right is None:
+            right_size = 0
+        else:
+            right_size = self.right.balance_tree()
+        self.size = 1 + left_size + right_size
         self.balance = self.getBalance(self)
-        if (-2 < self.balance) and (self.balance < 2):
-            self.display()
-            print("BALANCED", self.balance)
-        while (self.balance < -1 or 1 < self.balance):
+
+        while (self.balance < -1) or (1 < self.balance):
             if self.balance < -1:
-                self.rotate_simple_left()
+                if self.balance == -2:
+                    self.rotate_simple_left()
+                else:
+                    self.rotate_root_left()
 
             elif 1 < self.balance:
-                self.rotate_simple_right()
+                if self.balance == 2:
+                    self.rotate_simple_right()
+                else:
+                    self.rotate_root_right()
+            self.balance = self.getBalance(self)
             self.display()
             print("balance", self.balance)
 
+        if (-2 < self.balance) and (self.balance < 2):
+            self.display()
+            print("BALANCED", self.balance)
+            return True
 
     def insert(self, value):
         """
@@ -525,6 +560,7 @@ class BinaryTree:
         :param value:
         :return:
         """
+
         if self.getRootVal() is None:
             self.setRootVal(value)
         elif value <= self.getRootVal():
@@ -558,4 +594,3 @@ class BinaryTree:
         # self.setHeights(self)
         # self.setDepthsThenHeights(self)
         self.setSizes(self)
-        print("balance:", self.getBalance(self))
