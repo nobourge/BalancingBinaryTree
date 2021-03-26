@@ -26,8 +26,8 @@ AVL Tree would be
 
 
 values = set()
-for _ in range(5):
-      values.add(random.randint(0, 20))
+for _ in range(30):
+      values.add(random.randint(0, 2000))
 
 
 myTree.init_values(values)
