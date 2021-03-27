@@ -1,5 +1,6 @@
 from BinaryTree import BinaryTree
 import random
+import time
 
 
 myTree = BinaryTree(None)
@@ -26,9 +27,16 @@ AVL Tree would be
 
 
 values = set()
-for _ in range(30):
-      values.add(random.randint(0, 2000))
+for _ in range(100):
+      values.add(random.randint(0, 200))
 
+t = time.time()
 
 myTree.init_values(values)
 myTree.balance_tree()
+
+print(time.time() - t)
+
+# record(s) | nodes | values interval
+# 72          100     200
+#

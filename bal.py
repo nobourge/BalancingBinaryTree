@@ -102,3 +102,68 @@ def get_parent_and_child_side(self, node, current=None):
                                                       current.right)
 
     return parent, side
+
+
+def remove(self, node=None, parent=None, side=None):
+    """
+
+    :param side:
+    :param node:
+    :param parent:
+    :return:
+    """
+
+    if node is None:
+        return
+
+    children_count = node.count_children()
+
+    if children_count == 0:
+
+        if side == "left":
+            parent.left = None
+        else:
+            parent.right = None
+        del node
+
+    elif children_count == 1:
+        child = node.left or node.right
+        if side == "left":
+            parent.left = child
+            del node
+        elif side == "right":
+            parent.right = child
+            del node
+        else:
+            root = node
+            root.key = child.key
+            root.left = child.left
+            root.right = child.right
+            del child
+
+    else:
+        successor = node.get_successor()
+        node.key = successor.key
+        successor_parent, side = self.get_parent_and_child_side(
+            successor)
+        if side == "left":
+            successor_parent.left = successor.right
+        else:
+            successor_parent.right = successor.right
+        del successor
+
+
+def get_successor(self):
+    if self.right is not None:
+        return self.right.min()
+    node = self
+    while node.is_right_child():
+        node = self.get_parent_and_child_side(node)[1]
+    return self.get_parent_and_child_side(node)[1]  # is
+    # None
+    # if not node.is_left_child() so
+    # no successor
+
+def is_right_child(self):
+    return self.get_parent_and_child_side(self)[1] == \
+           "right"

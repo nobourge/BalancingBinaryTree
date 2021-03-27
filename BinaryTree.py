@@ -48,9 +48,7 @@ class BinaryTree:
         """
         return self.left
 
-    def is_left_child(self):
-        return self.get_parent_and_child_side(self)[1] == \
-               "left"
+
 
     def setLeftChild(self, leftChild):
         """
@@ -66,10 +64,6 @@ class BinaryTree:
         :return:
         """
         return self.right
-
-    def is_right_child(self):
-        return self.get_parent_and_child_side(self)[1] == \
-               "right"
 
     def setRightChild(self, rightChild):
         """
@@ -131,17 +125,6 @@ class BinaryTree:
 
     def count_children(self):
         return bool(self.left) + bool(self.right)
-
-    def get_successor(self):
-        if self.right is not None:
-            return self.right.min()
-        node = self
-        while node.is_right_child():
-            node = self.get_parent_and_child_side(node)[1]
-        return self.get_parent_and_child_side(node)[1]  # is
-        # None
-        # if not node.is_left_child() so
-        # no successor
 
     def get(self, key):
         if key < self.key:
@@ -303,17 +286,6 @@ class BinaryTree:
                 root.right = child.right
                 del child
 
-        else:
-            successor = node.get_successor()
-            node.key = successor.key
-            successor_parent, side = self.get_parent_and_child_side(
-                successor)
-            if side == "left":
-                successor_parent.left = successor.right
-            else:
-                successor_parent.right = successor.right
-            del successor
-
     def remove_subtree_minimum(self, subtree):
         """
         supprime le maximum d’un sous-ABR et retourne sa valeur
@@ -415,13 +387,16 @@ class BinaryTree:
         new_root = self.right
         previous_root.right = new_root.left
         self.key = new_root.key
+        self.display()
         self.right = new_root.right
+        self.display()
         self.left = previous_root
-        if self.left.left is None:
+        self.display()
+        self.left.balance = self.left.getBalance()
+        if not self.left.isBalanced():
             self.left.balance_tree()
         self.setSizes()
         self.balance = self.getBalance()
-        self.left.balance = self.getBalance()
 
     def rotate_simple_right(self):
         """
@@ -448,12 +423,27 @@ class BinaryTree:
         if self.left is None:
             return
         previous_root = copy.copy(self)
-        self.key = self.remove_maximum()
+        self.key = self.left.remove_maximum()
+        self.display()
+
+        self.left.setSizes()
+
+        previous_root.size -= previous_root.getSizeOf(
+            previous_root.left)
         previous_root.left = None
         self.right = previous_root
         self.setSizes()
+        self.display()
+
+        self.left.balance = self.left.getBalance()
+        if not self.left.isBalanced():
+            self.left.balance_tree()
+
+        self.right.balance = self.right.getBalance()
+        if not self.right.isBalanced():
+            self.right.balance_tree()
+
         self.balance = self.getBalance()
-        self.right.balance = self.getBalance()
 
     def rotate_simple_left(self):
         """
@@ -469,14 +459,31 @@ class BinaryTree:
         if self.right is None:
             return
         previous_root = copy.copy(self)
-        self.key = self.remove_minimum()
+        self.key = self.right.remove_minimum()
+        self.display()
+
+        self.right.setSizes()
+
+        previous_root.size -= previous_root.getSizeOf(previous_root.right)
         previous_root.right = None
+
         self.left = previous_root
-        if self.right.left is None:
-            self.right.balance_tree()
         self.setSizes()
+        self.display()
+
+        self.left.balance = self.left.getBalance()
+        if not self.left.isBalanced():
+            self.left.balance_tree()
+
+        self.right.balance = self.right.getBalance()
+        if not self.right.isBalanced():
+            self.right.balance_tree()
+
         self.balance = self.getBalance()
-        self.left.balance = self.getBalance()
+
+    def isBalanced(self):
+        return True if (-1 < self.balance) and (self.balance < 2) \
+            else False
 
     def balance_tree(self):
         """
@@ -502,30 +509,31 @@ class BinaryTree:
         self.size = 1 + left_size + right_size
         self.balance = self.getBalance()
         self.display()
-        while (self.balance < 0) or (1 < self.balance):
+        while not self.isBalanced():
             if self.balance < 0:
 
                 if self.getSizeOf(self.right.right) < (
                         self.getSizeOf(self.left)
                                                  +
                                                  self.getSizeOf(self.right.left)):
-                    # self.rotate_root_left()
                     self.rotate_simple_left()
 
                 else:
                     self.rotate_root_left()
-                    # self.rotate_simple_left()
 
             elif 1 < self.balance:
-                if self.balance == 2:
+                if self.getSizeOf(self.left.left) < (
+                        self.getSizeOf(self.right)
+                        +
+                        self.getSizeOf(self.left.right)):
                     self.rotate_simple_right()
                 else:
                     self.rotate_root_right()
             self.display()
             print("balance", self.balance)
 
-        if (-1 < self.balance) and (self.balance < 2):
-            print("BALANCED", self.balance)
+        if self.isBalanced():
+            print("BALANCED")
             return self.size
 
     def insert(self, value):
