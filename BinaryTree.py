@@ -48,8 +48,6 @@ class BinaryTree:
         """
         return self.left
 
-
-
     def setLeftChild(self, leftChild):
         """
         NO MODIFICATION ALLOWED
@@ -95,7 +93,7 @@ class BinaryTree:
     def getSize(self):
         if self is None:
             return 0
-        return self.size
+        return self.size if hasattr(self, 'size') else self.setSizes()
 
     def getSizeOf(self, node):
         if node is None:
@@ -104,11 +102,7 @@ class BinaryTree:
 
     def getBalance(self):
         """
-        balance factor must be 0 or 1
-        If the balance factor of a node is
-        greater than 1
-        or less than 0, the node needs to be rebalanced
-        :return:
+        :return:balance factor must be 0 or 1
         """
         if self is None:
             return 0
@@ -123,9 +117,6 @@ class BinaryTree:
             right_size = self.right.getSize()
         return left_size - right_size
 
-    def count_children(self):
-        return bool(self.left) + bool(self.right)
-
     def get(self, key):
         if key < self.key:
             return self.left.get(key) if self.left is not None else None
@@ -133,17 +124,6 @@ class BinaryTree:
             return self.right.get(key) if self.right is not None else \
                 None
         return self
-
-    def preOrder(self, node):
-
-        if node is None:
-            return
-
-        print(node.key)
-        if node.height:
-            print("height", node.height)
-        self.preOrder(node.left)
-        self.preOrder(node.right)
 
     def display(self):
         lines, *_ = self._display_aux()
@@ -173,7 +153,8 @@ class BinaryTree:
             second_line = x * ' ' + '/' + (n - x - 1 + u) * ' '
             shifted_lines = [line + u * ' ' for line in lines]
             return [first_line,
-                    second_line] + shifted_lines, n + u, p + 2, n + u // 2
+                    second_line] + shifted_lines, \
+                   n + u, p + 2, n + u // 2
 
         # Only right child.
         if self.left is None:
@@ -205,16 +186,6 @@ class BinaryTree:
                                              a, b in zipped_lines]
         return lines, n + m + u, max(p, q) + 2, n + u // 2
 
-    def get_min_node(self):
-        """
-
-        :return: minimum value node
-        """
-        mini = self
-        while mini.left is not None:
-            mini = mini.left
-        return mini
-
     def get_min_node_and_parent(self):
         """
 
@@ -227,15 +198,6 @@ class BinaryTree:
             mini = mini.left
         return mini, parent
 
-    def get_max_node(self):
-        """
-
-        :return: maximum value node
-        """
-        maxi = self
-        while maxi.right is not None:
-            maxi = maxi.right
-        return maxi
 
     def get_max_node_and_parent(self):
         """
@@ -249,10 +211,10 @@ class BinaryTree:
             maxi = maxi.right
         return maxi, parent
 
-    def remove(self, node=None, parent=None, side=None):
+    def remove(self, node=None, parent=None, left=None):
         """
 
-        :param side:
+        :param left:
         :param node:
         :param parent:
         :return:
@@ -261,43 +223,12 @@ class BinaryTree:
         if node is None:
             return
 
-        children_count = node.count_children()
-
-        if children_count == 0:
-
-            if side == "left":
-                parent.left = None
-            else:
-                parent.right = None
-            del node
-
-        elif children_count == 1:
-            child = node.left or node.right
-            if side == "left":
-                parent.left = child
-                del node
-            elif side == "right":
-                parent.right = child
-                del node
-            else:
-                root = node
-                root.key = child.key
-                root.left = child.left
-                root.right = child.right
-                del child
-
-    def remove_subtree_minimum(self, subtree):
-        """
-        supprime le maximum d’un sous-ABR et retourne sa valeur
-        :return:maximum
-        """
-        if subtree is None:
-            return
-        min_node = subtree.get_min_node()
-        minimum = min_node.key
-        self.remove(min_node)
-
-        return minimum
+        child = node.left or node.right
+        if left:
+            parent.left = child
+        else:
+            parent.right = child
+        del node
 
     def remove_minimum(self):
         """
@@ -308,22 +239,9 @@ class BinaryTree:
             return None
         min_node, parent = self.get_min_node_and_parent()
         minimum = min_node.key
-        self.remove(min_node, parent, "left")
+        self.remove(min_node, parent, True)
 
         return minimum
-
-    def remove_subtree_maximum(self, subtree):
-        """
-        supprime le maximum d’un sous-ABR et retourne sa valeur
-        :return:maximum
-        """
-        if subtree is None:
-            return
-        max_node = subtree.get_max_node()
-        maximum = max_node.key
-        self.remove(max_node)
-
-        return maximum
 
     def remove_maximum(self):
         """
@@ -334,7 +252,7 @@ class BinaryTree:
             return None
         max_node, parent = self.get_max_node_and_parent()
         maximum = max_node.key
-        self.remove(max_node, parent, "right")
+        self.remove(max_node, parent, False)
 
         return maximum
 
@@ -464,7 +382,8 @@ class BinaryTree:
 
         self.right.setSizes()
 
-        previous_root.size -= previous_root.getSizeOf(previous_root.right)
+        previous_root.size -= previous_root.getSizeOf(
+            previous_root.right)
         previous_root.right = None
 
         self.left = previous_root
@@ -497,16 +416,6 @@ class BinaryTree:
         :param self:
         :return: None
         """
-        self.display()
-        if self.left is None:
-            left_size = 0
-        else:
-            left_size = self.left.balance_tree()
-        if self.right is None:
-            right_size = 0
-        else:
-            right_size = self.right.balance_tree()
-        self.size = 1 + left_size + right_size
         self.balance = self.getBalance()
         self.display()
         while not self.isBalanced():
@@ -514,8 +423,8 @@ class BinaryTree:
 
                 if self.getSizeOf(self.right.right) < (
                         self.getSizeOf(self.left)
-                                                 +
-                                                 self.getSizeOf(self.right.left)):
+                        +
+                        self.getSizeOf(self.right.left)):
                     self.rotate_simple_left()
 
                 else:
@@ -534,7 +443,10 @@ class BinaryTree:
 
         if self.isBalanced():
             print("BALANCED")
-            return self.size
+            if self.left is not None:
+                self.left.balance_tree()
+            if self.right is not None:
+                self.right.balance_tree()
 
     def insert(self, value):
         """

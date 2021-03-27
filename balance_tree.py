@@ -34,9 +34,11 @@ t = time.time()
 
 myTree.init_values(values)
 myTree.balance_tree()
+myTree.display()
+
 
 print(time.time() - t)
 
 # record(s) | nodes | values interval
 # 72          100     200
-#
+# 3
