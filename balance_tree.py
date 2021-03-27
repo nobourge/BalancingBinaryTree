@@ -1,8 +1,9 @@
 from BinaryTree import BinaryTree
 import random
 import time
+import sys
 
-
+sys.setrecursionlimit(2000)
 myTree = BinaryTree(None)
 root = None
 
@@ -27,8 +28,8 @@ AVL Tree would be
 
 
 values = set()
-for _ in range(100):
-      values.add(random.randint(0, 200))
+for _ in range(5000):
+      values.add(random.randint(0, 20000))
 
 t = time.time()
 

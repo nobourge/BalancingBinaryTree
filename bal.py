@@ -302,3 +302,49 @@ def remove_subtree_maximum(self, subtree):
             print("height", node.height)
         self.preOrder(node.left)
         self.preOrder(node.right)
+
+
+    def get_min_node_and_parent(self):
+        """
+
+        :return: maximum value node
+        """
+        parent = None
+        mini = self
+        while mini.left is not None:
+            mini.size -= 1
+            parent = mini
+            mini = mini.left
+        return mini, parent
+
+    def get_max_node_and_parent(self):
+        """
+
+        :return: maximum value node
+        """
+        parent = None
+        maxi = self
+        while maxi.right is not None:
+            maxi.size -= 1
+            parent = maxi
+            maxi = maxi.right
+        return maxi, parent
+
+    def remove(self, node=None, parent=None, left=None):
+        """
+
+        :param left:
+        :param node:
+        :param parent:
+        :return:
+        """
+
+        if node is None:
+            return
+
+        child = node.left or node.right
+        if left:
+            parent.left = child
+        else:
+            parent.right = child
+        del node
