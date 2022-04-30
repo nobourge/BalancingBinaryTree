@@ -51,7 +51,7 @@ class BinaryTree:
     def setLeftChild(self, leftChild):
         """
         NO MODIFICATION ALLOWED
-        :param leftChild:
+        :param leftChild: node to be set as leftChild
         :return:
         """
         self.left = leftChild
@@ -66,32 +66,14 @@ class BinaryTree:
     def setRightChild(self, rightChild):
         """
         NO MODIFICATION ALLOWED
-        :param rightChild:
+        :param rightChild: node to be set as rightChild
         :return:
         """
         self.right = rightChild
 
-    def setSize(self):
-        """
-
-        :return:
-        """
-        if self is None:
-            return 0
-
-        if self.left is None:
-            left_size = 0
-        else:
-            left_size = self.left.getSize()
-        if self.right is None:
-            right_size = 0
-        else:
-            right_size = self.right.getSize()
-        return 1 + left_size + right_size
-
     def setSizes(self):
         """
-
+        sets the size of the node and its children
         :return:
         """
         if self is None:
@@ -148,6 +130,11 @@ class BinaryTree:
         return self
 
     def display(self):
+        """
+        from stackoverflow
+        displays tree graphical representation
+        :return:
+        """
         lines, *_ = self._display_aux()
         for line in lines:
             print(line)
@@ -241,6 +228,7 @@ class BinaryTree:
             maxi = maxi.right
         maximum = maxi.key
         parent.right = maxi.left
+        del maxi
         return maximum
 
     def rotate_root_right(self):
@@ -255,11 +243,10 @@ class BinaryTree:
         comme fils droit de la nouvelle racine b,
         3. placer e, l’ancien sous-arbre droit de b, comme fils
         gauche de a.
-        Après cette rotation, b est RETIRE du sous-arbre gauche et a
-        ainsi
-        que le sous-arbre e sont rajoutés au sous-arbre droit. Cette
-        manipulation est rapide mais le nombre de noeuds transférés
-        dépend du nombre de noeuds dans le sous-arbre e.
+        Après cette rotation, b est retiré du sous-arbre gauche et a
+        ainsi que le sous-arbre e sont rajoutés au sous-arbre droit.
+        Cette manipulation est rapide mais le nombre de noeuds
+        transférés dépend du nombre de noeuds dans le sous-arbre e.
         :return: None
         """
         if self.left is None:
@@ -275,7 +262,6 @@ class BinaryTree:
         self.key = new_root.key
         self.left = new_root.left
         self.right = previous_root
-        self.size = self.setSize()
 
     def rotate_root_left(self):
         """
@@ -289,7 +275,6 @@ class BinaryTree:
             return
         previous_root = copy.copy(self)
         new_root = self.right
-
         if previous_root.right is not None:
             previous_root.size -= previous_root.right.size
         previous_root.right = new_root.left
@@ -299,12 +284,7 @@ class BinaryTree:
 
         self.key = new_root.key
         self.right = new_root.right
-
-        # self.display()
-
         self.left = previous_root
-        self.left.balance = self.left.getBalance()
-        self.size = self.setSize()
 
     def rotate_simple_right(self):
         """
@@ -337,14 +317,13 @@ class BinaryTree:
         # self.display()
 
         self.right = previous_root
-        self.right.balance = self.right.getBalance()
 
     def rotate_simple_left(self):
         """
         Effectue une rotation simple gauche sur l’arbre courant ou ne
         modifie pas l’arbre si celle-ci est impossible
         Les
-        rotations gauche transferrant des noeuds du sous-arbre droit
+        rotations gauche transferant des noeuds du sous-arbre droit
         vers le sous-arbre gauche suivent une logique similaire en
         prenant le minimum du sous-arbre droit pour la rotation
         simple gauche
@@ -359,34 +338,31 @@ class BinaryTree:
         # self.display()
 
         self.left = previous_root
-        self.left.balance = self.left.getBalance()
 
-    def balance_tree(self):
+    def balanceSubTree(self, s=False):
         """
-        Équilibre l’arbre courant. Les manipulations de l’arbre ne
+        Les manipulations de l’arbre ne
         peuvent être faites que via les quatre méthodes de rotations
         ci-dessus durant la procédure sur l’arbre. Elles peuvent donc
         être appelée dans des fonctions appelées par balance_tree.
         Vous ne pouvez pas supprimer et insérer manuellement des
         valeurs (sauf pour la suppression nécessaire dans les
         rotations simple)
-        :param self:
-        :return: None
+        :return:
         """
+        if s:
+            self.setSizes()
         self.balance = self.getBalance()
         # self.display()
         while not self.isBalanced():
             if self.balance < 0:
-
                 if self.getSizeOf(self.right.right) < (
                         self.getSizeOf(self.left)
                         +
                         self.getSizeOf(self.right.left)):
                     self.rotate_simple_left()
-
                 else:
                     self.rotate_root_left()
-
             elif 1 < self.balance:
                 if self.getSizeOf(self.left.left) < (
                         self.getSizeOf(self.right)
@@ -397,20 +373,28 @@ class BinaryTree:
                     self.rotate_root_right()
             self.balance = self.getBalance()
             # self.display()
-            # print("balance", self.balance)
+            # print("balance:", self.balance)
 
         # print("BALANCED")
         if self.left is not None:
-            self.left.balance_tree()
+            self.left.balanceSubTree()
         if self.right is not None:
-            self.right.balance_tree()
+            self.right.balanceSubTree()
+
+    def balance_tree(self):
+        """
+        Équilibre l’arbre courant
+        :param self:
+        :return: None
+        """
+        self.balanceSubTree(True)
 
     def insert(self, value):
         """
         NO MODIFICATION ALLOWED
         insert value as node as the tree root or the root nearest
         position
-        :param value:
+        :param value: to be inserted as BinaryTree
         :return:
         """
 
@@ -430,7 +414,7 @@ class BinaryTree:
     def init_values(self, values):
         """
         NO MODIFICATION ALLOWED
-        :param values:
+        :param values: list
         :return:
         """
         self.setLeftChild(None)
@@ -438,4 +422,3 @@ class BinaryTree:
         self.setRootVal(None)
         for v in values:
             self.insert(v)
-        self.setSizes()

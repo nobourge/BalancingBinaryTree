@@ -348,3 +348,21 @@ def remove_subtree_maximum(self, subtree):
         else:
             parent.right = child
         del node
+
+    def setSize(self):
+        """
+        sets the size of the node
+        :return:
+        """
+        if self is None:
+            return 0
+
+        if self.left is None:
+            left_size = 0
+        else:
+            left_size = self.left.getSize()
+        if self.right is None:
+            right_size = 0
+        else:
+            right_size = self.right.getSize()
+        self.size = 1 + left_size + right_size
